@@ -1,0 +1,42 @@
+# GitHub Actions 用の OIDC プロバイダー設定
+resource "aws_iam_openid_connect_provider" "github" {
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+}
+
+# GitHub Actions が使用する IAM ロール
+resource "aws_iam_role" "github_actions" {
+  name = "aws-20260810-github-actions-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+        Condition = {
+          StringLike = {
+            # ⚠️ ご自身の GitHub ユーザー名 / リポジトリ名 に合わせて変更してください
+            "token.actions.githubusercontent.com:sub" = "repo:abeken1999/aws-20260810:*"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# 開発用の管理者権限付与（本番運用時は必要最小限に絞ります）
+resource "aws_iam_role_policy_attachment" "github_actions_admin" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+# 出力: GitHub Actions 設定で使う ロール ARN
+output "github_actions_role_arn" {
+  value       = aws_iam_role.github_actions.arn
+  description = "IAM Role ARN for GitHub Actions"
+}
