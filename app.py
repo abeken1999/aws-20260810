@@ -13,11 +13,11 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
             # レスポンスデータ（JSON）
             response_body = {
                 "status": "ok",
-                "message": "Hello World from AWS ECS Fargate!",
+                "message": "Hello World from AWS ECS Fargate! CI/CD Test Success! 🎉", # 👈 ここを変更！
                 "environment": os.getenv("APP_ENV", "development")
             }
             
-            self.wfile.write(json.dumps(response_body).encode('utf-8'))
+            self.wfile.write(json.dumps(response_body, ensure_ascii=False).encode('utf-8'))
         else:
             # 存在しないパスへのアクセスは 404
             self.send_response(404)
