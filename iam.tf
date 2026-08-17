@@ -2,7 +2,6 @@
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
-  # GitHub公式のサムプリント（過去の証明書更新に対応するため両方記述）
   thumbprint_list = [
     "6938fd4d98bab03faadb97b34396831e3780aea1",
     "1c3d215b070979b1a110759ff1183b263a4658a3"
@@ -23,9 +22,6 @@ resource "aws_iam_role" "github_actions" {
           Federated = aws_iam_openid_connect_provider.github.arn
         }
         Condition = {
-          StringEquals = {
-            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          }
           StringLike = {
             "token.actions.githubusercontent.com:sub" = "repo:abeken1999/aws-20260810:*"
           }
