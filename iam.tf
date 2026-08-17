@@ -22,8 +22,11 @@ resource "aws_iam_role" "github_actions" {
           Federated = aws_iam_openid_connect_provider.github.arn
         }
         Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
           StringLike = {
-            # デバッグ用：ユーザー名以下のすべてのサブジェクトを許可
+            # リポジトリID付与形式・従来形式・デバッグ用の全パターンを許容
             "token.actions.githubusercontent.com:sub" = "repo:abeken1999/*"
           }
         }
