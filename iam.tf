@@ -23,8 +23,8 @@ resource "aws_iam_role" "github_actions" {
         }
         Condition = {
           StringLike = {
-            # ID付与のフォーマット（repo:owner@id/repo@id:ref:...）および従来形式の両方に対応
-            "token.actions.githubusercontent.com:sub" = "repo:abeken1999*:aws-20260810*:*"
+            # デバッグ用：ユーザー名以下のすべてのサブジェクトを許可
+            "token.actions.githubusercontent.com:sub" = "repo:abeken1999/*"
           }
         }
       }
