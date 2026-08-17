@@ -2,7 +2,11 @@
 resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+  # GitHub公式のサムプリント（過去の証明書更新に対応するため両方記述）
+  thumbprint_list = [
+    "6938fd4d98bab03faadb97b34396831e3780aea1",
+    "1c3d215b070979b1a110759ff1183b263a4658a3"
+  ]
 }
 
 # GitHub Actions が使用する IAM ロール
@@ -19,8 +23,10 @@ resource "aws_iam_role" "github_actions" {
           Federated = aws_iam_openid_connect_provider.github.arn
         }
         Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
           StringLike = {
-            # ⚠️ ご自身の GitHub ユーザー名 / リポジトリ名 に合わせて変更してください
             "token.actions.githubusercontent.com:sub" = "repo:abeken1999/aws-20260810:*"
           }
         }
@@ -29,7 +35,7 @@ resource "aws_iam_role" "github_actions" {
   })
 }
 
-# 開発用の管理者権限付与（本番運用時は必要最小限に絞ります）
+# 開発用の管理者権限付与
 resource "aws_iam_role_policy_attachment" "github_actions_admin" {
   role       = aws_iam_role.github_actions.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
