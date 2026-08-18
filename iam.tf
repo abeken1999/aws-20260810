@@ -26,8 +26,11 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            # ユーザー名やリポジトリ名の後にIDが付与される形式（repo:abeken1999@.../aws-20260810@...:*）に対応
-            "token.actions.githubusercontent.com:sub" = "repo:abeken1999*:aws-20260810*:*"
+            # 標準形式（repo:owner/repo:ref:refs/heads/main等）および任意のref/eventに対応
+            "token.actions.githubusercontent.com:sub" = [
+              "repo:abeken1999/aws-20260810:*",
+              "repo:abeken1999*/aws-20260810*:*"
+            ]
           }
         }
       }
